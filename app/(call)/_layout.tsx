@@ -1,5 +1,5 @@
 import { Redirect, Tabs } from "expo-router";
-import { SafeAreaView, View } from "react-native";
+import { SafeAreaView, StatusBar, View } from "react-native";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import {
@@ -33,7 +33,7 @@ export default function CallRoutesLayout() {
 
   const tokenProvider = async () => {
     const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/getUserToken`,
+        `${process.env.EXPO_PUBLIC_API_URL}/generateUserToken`,
         {
             method: "POST",
             headers: {
@@ -50,6 +50,11 @@ export default function CallRoutesLayout() {
     const data = await response.json();
     return data.token;
   }
+  console.log(
+    clerkUser?.id,
+    clerkUser?.fullName,
+    clerkUser?.imageUrl,
+    clerkUser?.primaryEmailAddress?.toString(),)
 
   const client = StreamVideoClient.getOrCreateInstance({
     apiKey: apiKey as string,
@@ -63,6 +68,7 @@ export default function CallRoutesLayout() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <StreamVideo client={client}>
+        <StatusBar barStyle={"dark-content"}/>
         <Tabs
           screenOptions={({ route }) => ({
             header: () => null,
@@ -73,6 +79,7 @@ export default function CallRoutesLayout() {
               zIndex: 100,
               paddingBottom: 5,
             },
+            unmountOnBlur: true, // Ensures unmounting the screen when it's not active
           })}
         >
           <Tabs.Screen
